@@ -47,7 +47,7 @@ function App() {
                 </h1>
               </div>
               <p className="text-lg text-[#4A7FA7] max-w-xl">
-                A Comprehensive Tool To Calculate, Track, & Document Your Academic Progress With Precision.
+                A Comprehensive Tool To Calculate , Track & Document Your Academic Progress With Precision.
               </p>
             </div>
 
