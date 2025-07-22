@@ -27,32 +27,58 @@ export const PDFGenerator: React.FC<PDFGeneratorProps> = ({ courses, gpa }) => {
     dark: [10, 25, 49]        // #0A1931 - Very dark blue
   };
 
+  // Professional PDF color palette - more readable and professional
+  const pdfColors = {
+    // Main colors - darker and more professional
+    header: [41, 72, 119],        // #294877 - Professional dark blue
+    primary: [55, 88, 136],       // #375888 - Refined blue
+    secondary: [85, 115, 158],    // #55739E - Medium professional blue
+    accent: [115, 140, 175],      // #738CAF - Light professional blue
+    
+    // Text colors - high contrast for readability
+    darkText: [33, 37, 41],       // #21252B - Almost black
+    mediumText: [73, 80, 87],     // #495057 - Medium gray
+    lightText: [108, 117, 125],   // #6C757D - Light gray
+    
+    // Background colors - subtle and clean
+    lightBg: [248, 249, 250],     // #F8F9FA - Very light gray
+    accentBg: [233, 236, 239],    // #E9ECEF - Light gray
+    tableBg: [222, 226, 230],     // #DEE2E6 - Table gray
+    
+    // Status colors - professional grade colors
+    excellent: [40, 123, 105],    // #287B69 - Professional teal
+    good: [72, 118, 160],         // #4876A0 - Professional blue
+    satisfactory: [115, 140, 175], // #738CAF - Medium blue
+    warning: [184, 134, 11],      // #B8860B - Professional gold
+    poor: [153, 69, 69]           // #994545 - Professional red
+  };
+
   const validCourses = courses.filter(course => 
     course.moduleName.trim() && course.credits > 0 && course.grade
   );
 
   const getGradeColor = (grade: string) => {
     const gradeColors: { [key: string]: [number, number, number] } = {
-      'A+': colors.primary,        // Primary dark blue for excellent grades
-      'A': colors.primary,         // Primary dark blue
-      'A-': colors.medium,        // Medium blue
-      'B+': colors.medium,        // Medium blue
-      'B': [115, 147, 156],       // Teal blue
-      'B-': [115, 147, 156],      // Teal blue
-      'C+': [138, 138, 138],      // Medium gray
-      'C': [83, 92, 95],          // Dark blue-gray
-      'D': [100, 100, 100],       // Gray
-      'F': [120, 80, 80]         // Dark red
+      'A+': pdfColors.excellent,      // Excellent - Professional teal
+      'A': pdfColors.excellent,       // Excellent - Professional teal
+      'A-': pdfColors.good,          // Good - Professional blue
+      'B+': pdfColors.good,          // Good - Professional blue
+      'B': pdfColors.satisfactory,   // Satisfactory - Medium blue
+      'B-': pdfColors.satisfactory,  // Satisfactory - Medium blue
+      'C+': pdfColors.warning,       // Warning - Professional gold
+      'C': pdfColors.warning,        // Warning - Professional gold
+      'D': pdfColors.mediumText,     // Below average - Medium gray
+      'F': pdfColors.poor           // Poor - Professional red
     };
-    return gradeColors[grade] || colors.medium;
+    return gradeColors[grade] || pdfColors.mediumText;
   };
 
   const getPerformanceColor = (gpa: number): [number, number, number] => {
-    if (gpa >= 3.7) return colors.primary;     // Excellent - Primary dark blue
-    if (gpa >= 3.3) return colors.medium;     // Good - Medium blue
-    if (gpa >= 3.0) return [115, 147, 156];  // Satisfactory - Teal blue
-    if (gpa >= 2.0) return [138, 138, 138];  // Below Average - Medium gray
-    return [120, 80, 80];                    // Poor - Dark red
+    if (gpa >= 3.7) return pdfColors.excellent;      // Excellent - Professional teal
+    if (gpa >= 3.3) return pdfColors.good;          // Good - Professional blue
+    if (gpa >= 3.0) return pdfColors.satisfactory;  // Satisfactory - Medium blue
+    if (gpa >= 2.0) return pdfColors.warning;       // Below Average - Professional gold
+    return pdfColors.poor;                          // Poor - Professional red
   };
 
   const generatePDF = async () => {
@@ -74,8 +100,8 @@ export const PDFGenerator: React.FC<PDFGeneratorProps> = ({ courses, gpa }) => {
     const maxCoursesPerPage = Math.floor((pageHeight - 180) / 8);
     const displayCourses = validCourses.slice(0, maxCoursesPerPage);
 
-    // Header with dark blue (#1A3D63)
-    doc.setFillColor(26, 61, 99); // #1A3D63
+    // Header with professional dark blue
+    doc.setFillColor(...pdfColors.header);
     doc.rect(0, 0, pageWidth, 35, 'F');
 
     doc.setTextColor(255, 255, 255); // White text
@@ -84,28 +110,27 @@ export const PDFGenerator: React.FC<PDFGeneratorProps> = ({ courses, gpa }) => {
     doc.text('ACADEMIC TRANSCRIPT', pageWidth / 2, 18, { align: 'center' });
     
     doc.setFontSize(15);
-    doc.setFont('helvetica', 'bold');
+    doc.setFont('helvetica', 'normal');
     doc.text('Official GPA Report', pageWidth / 2, 28, { align: 'center' });
 
     yPosition = 50;
-    doc.setTextColor(0, 0, 0); // Black text for content
 
-    // Student Information with light blue background (#B3CFE5 with 30% opacity)
-    doc.setFillColor(179, 207, 229, 0.3); // #B3CFE5 with opacity
+    // Student Information with clean professional styling
+    doc.setFillColor(233, 236, 239);
     doc.roundedRect(margin, yPosition - 3, pageWidth - 2 * margin, 32, 3, 3, 'F');
     
-    doc.setDrawColor(74, 127, 167); // #4A7FA7 border
+    doc.setDrawColor(...pdfColors.accent);
     doc.setLineWidth(0.5);
     doc.roundedRect(margin, yPosition - 3, pageWidth - 2 * margin, 32, 3, 3, 'S');
 
-    doc.setFontSize(11);
+    doc.setFontSize(13);
     doc.setFont('helvetica', 'bold');
-    doc.setTextColor(138, 138, 138); // #0A1931
+    doc.setTextColor(0,0,0);
     doc.text('STUDENT INFORMATION', margin + 5, yPosition + 3);
 
     doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
-    doc.setTextColor(74, 127, 167); // #4A7FA7
+    doc.setTextColor(...pdfColors.mediumText);
 
     let infoY = yPosition + 12;
     const leftCol = margin + 5;
@@ -137,16 +162,16 @@ export const PDFGenerator: React.FC<PDFGeneratorProps> = ({ courses, gpa }) => {
 
     // GPA Summary with performance-based colors
     const [r, g, b] = getPerformanceColor(gpa);
-    doc.setFillColor(r, g, b, 0.15);
+    doc.setFillColor(233, 236, 239); // Very subtle background
     doc.roundedRect(margin, yPosition, pageWidth - 2 * margin, 28, 3, 3, 'F');
     
-    doc.setDrawColor(r, g, b);
-    doc.setLineWidth(1.5);
+    doc.setDrawColor(41, 72, 119);
+    doc.setLineWidth(1.2);
     doc.roundedRect(margin, yPosition, pageWidth - 2 * margin, 28, 3, 3, 'S');
 
     doc.setFontSize(13);
     doc.setFont('helvetica', 'bold');
-    doc.setTextColor(r, g, b);
+    doc.setTextColor(0, 0, 0);
     doc.text('GPA', margin + 5, yPosition + 8);
 
     doc.setFontSize(20);
@@ -154,26 +179,29 @@ export const PDFGenerator: React.FC<PDFGeneratorProps> = ({ courses, gpa }) => {
     
     doc.setFontSize(12);
     doc.setFont('helvetica', 'normal');
+    doc.setTextColor(...pdfColors.mediumText);
     doc.text('/ 4.0', pageWidth - margin - 15, yPosition + 12);
 
     doc.setFontSize(10);
+    doc.setTextColor(...pdfColors.darkText);
     doc.text(`Level: ${getGPADescription(gpa)}`, margin + 5, yPosition + 18);
 
     const totalCredits = displayCourses.reduce((sum, course) => sum + course.credits, 0);
+    doc.setTextColor(...pdfColors.mediumText);
     doc.text(`Credits: ${totalCredits}`, margin + 5, yPosition + 25);
     doc.text(`Courses: ${displayCourses.length}`, pageWidth - margin - 50, yPosition + 25);
 
-    yPosition += 35;
+    yPosition += 40;
 
     // Course Table
     doc.setFontSize(13);
     doc.setFont('helvetica', 'bold');
-    doc.setTextColor(10, 25, 49); // #0A1931
+    doc.setTextColor(...pdfColors.darkText);
     doc.text('COURSE DETAILS', margin, yPosition);
-    yPosition += 10;
+    yPosition += 5;
 
-    // Table Header with dark blue (#1A3D63)
-    doc.setFillColor(26, 61, 99); // #1A3D63
+    // Table Header with professional styling
+    doc.setFillColor(...pdfColors.primary);
     doc.rect(margin, yPosition, pageWidth - 2 * margin, 10, 'F');
 
     doc.setFontSize(9);
@@ -186,20 +214,20 @@ export const PDFGenerator: React.FC<PDFGeneratorProps> = ({ courses, gpa }) => {
     
     yPosition += 10;
 
-    // Table Rows
+    // Table Rows with professional styling
     doc.setFont('helvetica', 'normal');
     displayCourses.forEach((course, index) => {
       const points = GRADE_POINTS[course.grade];
       const isEvenRow = index % 2 === 0;
       
       if (isEvenRow) {
-        doc.setFillColor(179, 207, 229, 0.5); // #B3CFE5 with opacity
+        doc.setFillColor(233, 236, 239);
         doc.rect(margin, yPosition, pageWidth - 2 * margin, 8, 'F');
       }
 
       // Course name
-      doc.setTextColor(255, 255, 255); // #FFFFFF
-      doc.setFontSize(8);
+      doc.setTextColor(...pdfColors.darkText);
+      doc.setFontSize(10);
       const maxNameLength = 30;
       const displayName = course.moduleName.length > maxNameLength 
         ? course.moduleName.substring(0, maxNameLength) + '...'
@@ -207,17 +235,17 @@ export const PDFGenerator: React.FC<PDFGeneratorProps> = ({ courses, gpa }) => {
       doc.text(displayName, margin + 3, yPosition + 5.5);
 
       // Credits
-      doc.setTextColor(74, 127, 167); // #4A7FA7
+      doc.setTextColor(...pdfColors.mediumText);
       doc.text(course.credits.toString(), margin + 105, yPosition + 5.5);
 
-      // Grade with custom colors
+      // Grade with professional colors
       const [gradeR, gradeG, gradeB] = getGradeColor(course.grade);
       doc.setTextColor(gradeR, gradeG, gradeB);
       doc.setFont('helvetica', 'bold');
       doc.text(course.grade, margin + 130, yPosition + 5.5);
 
       // Points
-      doc.setTextColor(74, 127, 167); // #4A7FA7
+      doc.setTextColor(...pdfColors.mediumText);
       doc.setFont('helvetica', 'normal');
       doc.text(points.toFixed(1), margin + 155, yPosition + 5.5);
       
@@ -228,28 +256,21 @@ export const PDFGenerator: React.FC<PDFGeneratorProps> = ({ courses, gpa }) => {
     if (validCourses.length > displayCourses.length) {
       yPosition += 5;
       doc.setFontSize(8);
-      doc.setTextColor(74, 127, 167); // #4A7FA7
+      doc.setTextColor(...pdfColors.lightText);
       doc.setFont('helvetica', 'italic');
       doc.text(`Note: Showing ${displayCourses.length} of ${validCourses.length} courses (limited to fit single page)`, margin, yPosition);
       yPosition += 8;
     }
 
-    // Footer with light blue background (#B3CFE5 with 30% opacity)
+    // Footer with subtle professional styling
     const footerY = pageHeight - 25;
-    doc.setFillColor(179, 207, 229, 0.3); // #B3CFE5 with opacity
+    doc.setFillColor(...pdfColors.lightBg);
     doc.rect(0, footerY - 5, pageWidth, 30, 'F');
     
-    // Performance Scale Legend
-    doc.setFontSize(7);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(74, 127, 167); // #4A7FA7
-    doc.text('GPA SCALE:', margin, footerY);
-    doc.setFont('helvetica', 'normal');
-    doc.text('A+/A (4.0) | A- (3.7) | B+ (3.3) | B (3.0) | B- (2.7) | C+ (2.3) | C (2.0) | D (1.0) | F (0.0)', margin + 22, footerY);
     
     doc.setFontSize(7);
     doc.setFont('helvetica', 'italic');
-    doc.setTextColor(74, 127, 167); // #4A7FA7
+    doc.setTextColor(...pdfColors.lightText);
     doc.text('This document was generated electronically and is valid without signature.', pageWidth / 2, footerY + 8, { align: 'center' });
     doc.text(`Generated by GPA Calculator on ${new Date().toLocaleString()}`, pageWidth / 2, footerY + 15, { align: 'center' });
 
